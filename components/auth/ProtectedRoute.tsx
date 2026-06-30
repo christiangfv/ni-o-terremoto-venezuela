@@ -5,6 +5,6 @@ import type { UserRole } from "@/lib/types/domain";
 
 export async function ProtectedRoute({ children, roles }: { children: ReactNode; roles?: UserRole[] }) {
   const { allowed } = await requireApprovedUser(roles);
-  if (!allowed) redirect("/?auth=required");
+  if (!allowed) redirect("/login?error=required" as never);
   return <>{children}</>;
 }

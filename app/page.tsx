@@ -10,7 +10,8 @@ export default function HomePage() {
           Plataforma para registro y seguimiento interno de menores en emergencias por equipos autorizados. Diseñada con privacidad, RLS, auditoría y moderación desde la base.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
-          <Link className="rounded-xl bg-slate-950 px-5 py-3 font-semibold text-white" href="/dashboard">Dashboard privado</Link>
+          <Link className="rounded-xl bg-slate-950 px-5 py-3 font-semibold text-white" href={"/login" as never}>Entrar</Link>
+          <Link className="rounded-xl border border-slate-300 px-5 py-3 font-semibold" href="/dashboard">Dashboard privado</Link>
           <Link className="rounded-xl border border-slate-300 px-5 py-3 font-semibold" href="/reportar">Reportar información</Link>
           <Link className="rounded-xl border border-slate-300 px-5 py-3 font-semibold" href="/caso/demo">Consultar código</Link>
         </div>
