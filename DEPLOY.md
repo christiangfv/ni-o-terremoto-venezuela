@@ -44,6 +44,31 @@ nino-terremoto-venezuela-wy5pm8qsv1hv8kq11lhrb0fj:3000
 
 Coolify is configured to deploy the Next.js app using that same custom internal container name so the existing tunnel URL keeps pointing at the latest deployment.
 
+## Environment variables
+
+Required at runtime (set in Coolify / the container env):
+
+```txt
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=    # server-only; used by admin user creation + bootstrap
+```
+
+`SUPABASE_SERVICE_ROLE_KEY` must never be exposed to the browser.
+
+## First admin (bootstrap)
+
+Onboarding is admin-creates-accounts (no public signup), so the first admin must
+be created out-of-band. With the three env vars above available, run once:
+
+```bash
+npm run bootstrap:admin -- admin@example.com 'una-contraseña-fuerte' 'Nombre Admin'
+```
+
+This creates (or reuses) the auth user, confirms its email, and promotes its
+profile to an approved `admin`. After that, all further accounts are created from
+the in-app `/usuarios` panel.
+
 ## Production caveat
 
 The `trycloudflare.com` URL is not a permanent production domain. For real production, move to a fixed domain and TLS:

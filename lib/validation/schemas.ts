@@ -61,3 +61,54 @@ export const transferSchema = z.object({
 });
 
 export const publicCaseCodeSchema = z.string().trim().min(4).max(32).transform((value) => value.toUpperCase());
+
+// Roles that can be assigned to team members (everything except the default public role).
+export const assignableRoleSchema = z.enum(["admin", "organizacion", "voluntario", "salud_albergue"]);
+
+export const organizationSchema = z.object({
+  name: z.string().min(1).max(160),
+  slug: z
+    .string()
+    .min(1)
+    .max(160)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "El slug debe estar en minúsculas con guiones"),
+  contact_email: z.string().email().optional().or(z.literal("")),
+  contact_phone: z.string().max(60).optional().or(z.literal("")),
+  active: z.boolean().default(true)
+});
+
+export const organizationUpdateSchema = organizationSchema.partial().extend({ id: z.string().uuid() });
+
+export const createUserSchema = z
+  .object({
+    email: z.string().email(),
+    full_name: z.string().min(1).max(160),
+    password: z.string().min(8).max(200),
+    role: assignableRoleSchema,
+    organization_id: z.string().uuid().nullable().optional()
+  })
+  .superRefine((value, ctx) => {
+    // Non-admin roles are scoped to an organization by RLS, so an org is required;
+    // a member created without one could not see or act on any case. Admins are
+    // cross-organization and may be created without one.
+    if (value.role !== "admin" && !value.organization_id) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["organization_id"],
+        message: "Selecciona una organización para este rol"
+      });
+    }
+  });
+
+export const userUpdateSchema = z.object({
+  id: z.string().uuid(),
+  role: assignableRoleSchema.optional(),
+  organization_id: z.string().uuid().nullable().optional(),
+  approved: z.boolean().optional()
+});
+
+export const reportReviewSchema = z.object({
+  id: z.string().uuid(),
+  status: z.enum(["en_revision", "aprobado", "rechazado", "duplicado"]),
+  moderation_notes: z.string().max(2000).optional().or(z.literal(""))
+});

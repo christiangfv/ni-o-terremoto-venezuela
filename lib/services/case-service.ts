@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Case, CaseEvent, PublicCase } from "@/lib/types/domain";
+import type { Case, CaseEvent, CasePhoto, PublicCase } from "@/lib/types/domain";
 import { caseCreateSchema, caseUpdateSchema, publicCaseCodeSchema } from "@/lib/validation/schemas";
 
 export async function listCases() {
@@ -37,4 +37,53 @@ export async function getPublicCaseByCode(code: string) {
   if (error) return { data: null, error };
   const row = Array.isArray(data) ? data[0] : data;
   return { data: (row ?? null) as PublicCase | null, error: null };
+}
+
+export async function listCasePhotos(caseId: string) {
+  const supabase = await createClient();
+  // RLS (case_photos_select_case_access) gates this to users who can access the case.
+  return supabase
+    .from("case_photos")
+    .select("*")
+    .eq("case_id", caseId)
+    .order("created_at", { ascending: false })
+    .returns<CasePhoto[]>();
+}
+
+function safeFileName(name: string): string {
+  const trimmed = name.trim().toLowerCase();
+  const sanitized = trimmed
+    .replace(/[^a-z0-9._-]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^[-.]+|[-.]+$/g, "");
+  return sanitized.length > 0 ? sanitized : "archivo";
+}
+
+export async function uploadCasePhoto({
+  caseId,
+  file,
+  isPublicPreview = false
+}: {
+  caseId: string;
+  file: File;
+  isPublicPreview?: boolean;
+}): Promise<{ data: CasePhoto | null; error: Error | null }> {
+  const bucketId = "case-photos-private";
+  const path = `${caseId}/${crypto.randomUUID()}-${safeFileName(file.name)}`;
+  const supabase = await createClient();
+
+  // RLS (storage ntv_case_photos_insert) gates the upload to users who can access the case.
+  const { error: uploadError } = await supabase.storage.from(bucketId).upload(path, file, { upsert: false });
+  if (uploadError) {
+    return { data: null, error: uploadError };
+  }
+
+  // RLS (case_photos_insert_case_access) gates the row insert the same way.
+  const { data, error } = await supabase
+    .from("case_photos")
+    .insert({ case_id: caseId, bucket_id: bucketId, storage_path: path, is_public_preview: isPublicPreview })
+    .select("*")
+    .single<CasePhoto>();
+
+  return { data, error };
 }

@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import { publicReportSchema } from "@/lib/validation/schemas";
+import type { PublicReport } from "@/lib/types/domain";
+import { publicReportSchema, reportReviewSchema } from "@/lib/validation/schemas";
 
 export async function createPublicReport(input: unknown) {
   const parsed = publicReportSchema.parse(input);
@@ -21,4 +22,20 @@ export async function reviewPublicReport(id: string, status: "aprobado" | "recha
     .eq("id", id)
     .select("*")
     .single();
+}
+
+export async function reviewPublicReportById(input: unknown) {
+  const parsed = reportReviewSchema.parse(input);
+  const supabase = await createClient();
+  // RLS (public_reports_update_moderators) gates this to admins and secure roles.
+  return supabase
+    .from("public_reports")
+    .update({
+      status: parsed.status,
+      moderation_notes: parsed.moderation_notes ? parsed.moderation_notes : null,
+      reviewed_at: new Date().toISOString()
+    })
+    .eq("id", parsed.id)
+    .select("*")
+    .single<PublicReport>();
 }

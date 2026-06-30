@@ -22,3 +22,11 @@ export async function requireApprovedUser(roles?: UserRole[]) {
 export function isRoleAllowed(profile: Profile | null, roles: UserRole[]) {
   return Boolean(profile?.approved && roles.includes(profile.role));
 }
+
+export async function requireAdmin(): Promise<Profile> {
+  const profile = await getCurrentProfile();
+  if (!profile || !profile.approved || profile.role !== "admin") {
+    throw new Error("No autorizado");
+  }
+  return profile;
+}

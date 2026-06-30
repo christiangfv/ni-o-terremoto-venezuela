@@ -71,3 +71,66 @@ export type PublicCase = {
   zone_general: string | null;
   public_photo_path: string | null;
 };
+
+// Roles that can be assigned to a team member (everything except the default public role).
+export type AssignableRole = Exclude<UserRole, "publico">;
+
+export type ProfileWithOrg = Profile & {
+  organizations?: { name: string } | null;
+};
+
+export type PublicReport = {
+  id: string;
+  case_id: string | null;
+  public_code: string | null;
+  reporter_name: string | null;
+  reporter_contact: string | null;
+  message: string;
+  zone_general: string | null;
+  attachment_bucket_id: string | null;
+  attachment_storage_path: string | null;
+  status: ReportStatus;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  moderation_notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Handover = {
+  id: string;
+  case_id: string;
+  organization_id: string;
+  recipient_name: string;
+  recipient_relationship: string | null;
+  recipient_document_ref: string | null;
+  verified_by: string | null;
+  evidence_bucket_id: string | null;
+  evidence_storage_path: string | null;
+  notes: string | null;
+  created_at: string;
+};
+
+export type Transfer = {
+  id: string;
+  case_id: string;
+  organization_id: string;
+  from_zone: string;
+  to_zone: string;
+  from_location_exact: string | null;
+  to_location_exact: string | null;
+  reason: string | null;
+  responsible_person: string | null;
+  created_by: string | null;
+  created_at: string;
+};
+
+export type CasePhoto = {
+  id: string;
+  case_id: string;
+  bucket_id: string;
+  storage_path: string;
+  is_public_preview: boolean;
+  uploaded_by: string | null;
+  created_at: string;
+};
