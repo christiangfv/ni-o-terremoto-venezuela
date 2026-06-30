@@ -2,8 +2,9 @@ export const dynamic = "force-dynamic";
 
 import { getPublicCaseByCode } from "@/lib/services/case-service";
 
-export default async function PublicCasePage({ params }: { params: { codigo: string } }) {
-  const { data: item } = await getPublicCaseByCode(params.codigo);
+export default async function PublicCasePage({ params }: { params: Promise<{ codigo: string }> }) {
+  const { codigo } = await params;
+  const { data: item } = await getPublicCaseByCode(codigo);
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-10">
