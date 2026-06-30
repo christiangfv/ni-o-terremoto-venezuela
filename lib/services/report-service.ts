@@ -4,7 +4,8 @@ import { publicReportSchema } from "@/lib/validation/schemas";
 export async function createPublicReport(input: unknown) {
   const parsed = publicReportSchema.parse(input);
   const supabase = await createClient();
-  return supabase.from("public_reports").insert({ ...parsed, status: "pendiente" }).select("id,status").single();
+  const { error } = await supabase.from("public_reports").insert({ ...parsed, status: "pendiente" });
+  return { data: error ? null : { status: "pendiente" as const }, error };
 }
 
 export async function listModerationQueue() {
