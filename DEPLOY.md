@@ -22,6 +22,13 @@ Coolify application:
 - Exposed port: `3000`
 - Host mapping: `18081:3000`
 - Auto deploy: enabled in Coolify.
+- Stable internal container name: `nino-terremoto-venezuela-wy5pm8qsv1hv8kq11lhrb0fj`
+
+A VPS-side CD watchdog also runs every 2 minutes:
+
+- Script: `/data/.hermes/scripts/ntv_coolify_autodeploy.py`
+- Cron: `NTV Coolify autodeploy after CI`
+- Behavior: checks GitHub `main`, waits for the `CI` workflow to complete successfully for that commit, then triggers Coolify deploy.
 
 The current public HTTPS endpoint is a Cloudflare Quick Tunnel:
 
