@@ -6,9 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "bootstrap:admin": "node scripts/bootstrap-admin.mjs",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
-    "bootstrap:admin": "node scripts/bootstrap-admin.mjs"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
